@@ -1,7 +1,82 @@
 <!DOCTYPE html>
-<html>
-    <body>
-        <h1> XV Caro</h1>
-        <p> I'm hosted with Github Pages</p>
-    </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XV Años de Caro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="particles-container" id="particles-js"></div>
+    
+    <header>
+        <div class="logo">XV Caro</div>
+        <div class="header-decoration"></div>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>XV Años de Caro</h1>
+                <p class="tagline">Captura momentos, crea recuerdos inolvidables</p>
+                <div class="decoration-line"></div>
+            </div>
+        </section>
+        
+        <section class="upload-section">
+            <div class="container">
+                <div class="card">
+                    <div class="card-content">
+                        <h2>Comparte tus fotos</h2>
+                        <p>Ayúdame a crear recuerdos increíbles subiendo tus fotos favoritas de esta noche mágica.</p>
+                        
+                        <div class="upload-area" id="upload-area">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <p>Toca aquí para seleccionar fotos</p>
+                            <span class="small-text">o arrastra y suelta tus imágenes</span>
+                            <input type="file" id="file-input" multiple accept="image/*" class="file-input">
+                        </div>
+                        
+                        <div class="upload-preview" id="upload-preview">
+                            <h3>Fotos seleccionadas</h3>
+                            <div class="preview-container" id="preview-container"></div>
+                        </div>
+                        
+                        <button class="upload-button" id="upload-button" disabled>
+                            <i class="fas fa-paper-plane"></i> Subir Fotos
+                        </button>
+                        
+                        <div class="upload-status" id="upload-status"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="thank-you-section">
+            <div class="container">
+                <h2>¡Gracias por ser parte de mi día especial!</h2>
+                <p>Cada momento capturado es un recuerdo que atesoraré por siempre.</p>
+                <div class="heart-decoration">
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>XV Años de Caro &copy; 2025</p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="script.js"></script>
+</body>
 </html>
