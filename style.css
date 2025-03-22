@@ -18,6 +18,12 @@
     box-sizing: border-box;
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: var(--background-color);
@@ -28,10 +34,9 @@ body {
 }
 
 .container {
-    width: 90%;
-    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 2rem 0;
+    padding: 0;
 }
 
 /* Particles Background */
@@ -42,6 +47,7 @@ body {
     top: 0;
     left: 0;
     z-index: -1;
+    opacity: 0.9;
 }
 
 /* Header Styles */
@@ -71,12 +77,26 @@ header {
     background-size: 100% 100%;
 }
 
+/* Desktop Layout Container */
+.desktop-layout-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
 /* Hero Section */
 .hero {
     text-align: center;
-    padding: 5rem 1rem 3rem;
-    background-color: rgba(255, 255, 255, 0.8);
+    padding: 3rem 1rem 2rem;
     margin-bottom: 2rem;
+    border-radius: 15px;
+    flex: 1;
+    min-width: 300px;
 }
 
 .hero-content {
@@ -109,7 +129,7 @@ h1 {
 .hero-image-container {
     position: relative;
     width: 100%;
-    max-width: 600px;
+    max-width: 450px;
     margin: 0 auto;
     border-radius: 15px;
     overflow: hidden;
@@ -138,11 +158,14 @@ h1 {
 
 /* Upload Section */
 .upload-section {
-    padding: 2rem 0 4rem;
+    padding: 3rem 1rem 2rem;
+    flex: 1;
+    min-width: 300px;
 }
 
 .card {
-    background-color: var(--white);
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
     border-radius: 15px;
     box-shadow: var(--shadow);
     overflow: hidden;
@@ -296,7 +319,8 @@ h1 {
 
 /* Thank You Section */
 .thank-you-section {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(5px);
     text-align: center;
     padding: 3rem 0;
 }
@@ -341,6 +365,16 @@ footer p {
 }
 
 /* Responsive Design */
+@media (max-width: 992px) {
+    .desktop-layout-container {
+        flex-direction: column;
+    }
+    
+    .hero, .upload-section {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .logo {
         font-size: 2rem;
@@ -351,7 +385,7 @@ footer p {
     }
     
     .hero {
-        padding: 4rem 1rem 2rem;
+        padding: 3rem 1rem 2rem;
     }
     
     .card-content {
@@ -381,6 +415,11 @@ footer p {
     
     .hero-image-container {
         max-width: 400px;
+    }
+    
+    /* Ensure consistent background */
+    .particles-container {
+        opacity: 0.7;
     }
 }
 
