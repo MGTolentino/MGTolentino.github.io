@@ -102,7 +102,38 @@ h1 {
     width: 150px;
     height: 3px;
     background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+    margin: 0 auto 2rem;
+}
+
+/* Hero Image Styles */
+.hero-image-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
     margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.hero-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.hero-image:hover {
+    transform: scale(1.02);
+}
+
+/* Responsive images - Show/hide based on screen size */
+.desktop-image {
+    display: block;
+}
+
+.mobile-image {
+    display: none;
 }
 
 /* Upload Section */
@@ -338,6 +369,19 @@ footer p {
     .thank-you-section h2 {
         font-size: 2rem;
     }
+    
+    /* Swap images on tablet and below */
+    .desktop-image {
+        display: none;
+    }
+    
+    .mobile-image {
+        display: block;
+    }
+    
+    .hero-image-container {
+        max-width: 400px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -373,5 +417,11 @@ footer p {
     
     .thank-you-section h2 {
         font-size: 1.8rem;
+    }
+    
+    /* Adjust hero image for smaller screens */
+    .hero-image-container {
+        max-width: 320px;
+        margin-top: 1rem;
     }
 }
