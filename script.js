@@ -313,6 +313,9 @@ function uploadToGoogleDrive(files) {
                 // Re-enable upload button
                 uploadButton.disabled = false;
                 
+                // AÑADIR ESTA LÍNEA para vaciar el array de archivos seleccionados
+                selectedFiles = [];
+                
                 return { success: true };
             });
         })

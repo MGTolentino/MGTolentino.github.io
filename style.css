@@ -399,13 +399,24 @@ footer p {
 }
 
 /* Responsive Design */
+/* Reducir espacio en móvil */
 @media (max-width: 992px) {
     .desktop-layout-container {
         flex-direction: column;
+        gap: 0.5rem; /* Reducido desde 2rem */
     }
     
     .hero, .upload-section {
         width: 100%;
+        margin-bottom: 0.5rem; /* Añadido para reducir espacio */
+    }
+    
+    .hero {
+        padding-bottom: 1rem; /* Reducido desde 2rem o 3rem */
+    }
+    
+    .upload-section {
+        padding-top: 1rem; /* Reducido desde 2rem o 3rem */
     }
 }
 
