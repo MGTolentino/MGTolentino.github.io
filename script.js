@@ -251,7 +251,7 @@ function setupFileUpload() {
 // Upload files to Google Drive via Apps Script
 function uploadToGoogleDrive(files) {
     // IMPORTANTE: Reemplaza esta URL con la que obtuviste al implementar tu Google Apps Script
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwaIcJMikiwnvc-hgpsYEfKFdc7f1XDHLxK3v_mJ-MbW64ZTwnCbJ4SWzBOdePfkXugHQ/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJAxQGMAV5XIrEMmfuy9rR3Dy71wC5wR0-pXnvgzPKVN7EDGRZisTqmpw6_SJ5yAkcgw/exec';
     
     // Preparar los archivos para el envío
     const filePromises = files.map(file => {
