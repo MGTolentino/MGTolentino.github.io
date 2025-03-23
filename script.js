@@ -231,18 +231,8 @@ function setupFileUpload() {
         // Show loading status
         showStatus('Subiendo fotos...', 'loading');
         
-        // Here we'll replace this with the actual Google Drive upload later
-        // For now, just simulate an upload with a timeout
-        setTimeout(() => {
-            showStatus('¡Fotos subidas con éxito!', 'success');
-            
-            // Clear selected files and preview
-            selectedFiles = [];
-            previewContainer.innerHTML = '';
-            uploadPreview.style.display = 'none';
-            uploadButton.disabled = true;
-            fileInput.value = '';
-        }, 2000);
+        // Upload to Google Drive
+        uploadToGoogleDrive(selectedFiles);
     });
     
     // Show status message
@@ -256,8 +246,73 @@ function setupFileUpload() {
     }
 }
 
-// This function will be implemented later to handle the Google Drive upload
+// Upload files to Google Drive via Apps Script
 function uploadToGoogleDrive(files) {
-    // We'll implement this in the next step
-    console.log('Ready to upload files to Google Drive:', files);
+    // IMPORTANTE: Reemplaza esta URL con la que obtuviste al implementar tu Google Apps Script
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwaIcJMikiwnvc-hgpsYEfKFdc7f1XDHLxK3v_mJ-MbW64ZTwnCbJ4SWzBOdePfkXugHQ/exec';
+    
+    // Preparar los archivos para el envío
+    const filePromises = files.map(file => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                resolve({
+                    filename: file.name,
+                    mimeType: file.type,
+                    data: e.target.result,
+                    bytes: file.size
+                });
+            };
+            
+            reader.onerror = function() {
+                reject(new Error('Error al leer el archivo ' + file.name));
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    });
+    
+    // Procesar todos los archivos y enviarlos
+    Promise.all(filePromises)
+        .then(fileDataArray => {
+            // Preparar los datos para enviar al servidor
+            const payload = {
+                files: fileDataArray
+            };
+            
+            // Enviar al servidor de Google Apps Script
+            return fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error de red: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Mostrar mensaje de éxito
+                showStatus('¡Fotos subidas con éxito!', 'success');
+                
+                // Limpiar selección
+                selectedFiles = [];
+                previewContainer.innerHTML = '';
+                uploadPreview.style.display = 'none';
+                uploadButton.disabled = true;
+                fileInput.value = '';
+            } else {
+                throw new Error(data.error || 'Error al subir las fotos');
+            }
+        })
+        .catch(error => {
+            console.error('Error al subir fotos:', error);
+            showStatus('Error: ' + error.message, 'error');
+        });
 }
