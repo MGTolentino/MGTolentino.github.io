@@ -246,8 +246,11 @@ function setupFileUpload() {
         // Show loading status
         showStatus('Subiendo fotos...', 'loading');
         
-        // Upload to Google Drive
-        uploadToGoogleDrive(selectedFiles);
+        // Upload to Google Drive con función de callback para limpiar
+        uploadToGoogleDrive(selectedFiles, () => {
+            // Esta función limpiará el array correctamente
+            selectedFiles = [];
+        });
     });
 }
 
@@ -313,8 +316,8 @@ function uploadToGoogleDrive(files) {
                 // Re-enable upload button
                 uploadButton.disabled = false;
                 
-                // AÑADIR ESTA LÍNEA para vaciar el array de archivos seleccionados
-                selectedFiles = [];
+                // Llamar al callback para limpiar el array original
+                if (clearFilesCallback) clearFilesCallback();
                 
                 return { success: true };
             });
