@@ -170,61 +170,140 @@ function setupFileUpload() {
     });
     
     // Handle the selected files
-    function handleFiles(files) {
-        // Add new files to the selected files array
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            
-            // Only accept images
-            if (!file.type.startsWith('image/')) {
-                showStatus('Solo se permiten imágenes', 'error');
+function handleFiles(files) {
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB para imágenes
+    const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB para videos
+    
+    let rejectedFiles = 0;
+    
+    // Add new files to the selected files array
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Verificar si es imagen o video
+        if (file.type.startsWith('image/')) {
+            // Verificar tamaño de la imagen
+            if (file.size > MAX_IMAGE_SIZE) {
+                showStatus(`La imagen "${file.name}" excede el límite de 5MB`, 'error');
+                rejectedFiles++;
                 continue;
             }
-            
-            selectedFiles.push(file);
-            
-            // Create preview item
-            createPreviewItem(file);
+        } else if (file.type.startsWith('video/')) {
+            // Verificar tamaño del video
+            if (file.size > MAX_VIDEO_SIZE) {
+                showStatus(`El video "${file.name}" excede el límite de 20MB`, 'error');
+                rejectedFiles++;
+                continue;
+            }
+        } else {
+            // No es ni imagen ni video
+            showStatus('Solo se permiten imágenes y videos', 'error');
+            rejectedFiles++;
+            continue;
         }
         
-        // Show the preview section if there are files
-        if (selectedFiles.length > 0) {
-            uploadPreview.style.display = 'block';
-            uploadButton.disabled = false;
-        } else {
-            uploadPreview.style.display = 'none';
-            uploadButton.disabled = true;
-        }
+        selectedFiles.push(file);
+        
+        // Create preview item
+        createPreviewItem(file);
     }
     
-    // Create a preview item for a file
-    function createPreviewItem(file) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            const previewItem = document.createElement('div');
-            previewItem.className = 'preview-item';
-            previewItem.dataset.filename = file.name;
-            
+    // Mostrar mensaje si se rechazaron archivos
+    if (rejectedFiles > 0) {
+        showStatus(`Se rechazaron ${rejectedFiles} archivo(s) por exceder el tamaño permitido`, 'warning');
+    }
+    
+    // Show the preview section if there are files
+    if (selectedFiles.length > 0) {
+        uploadPreview.style.display = 'block';
+        uploadButton.disabled = false;
+    } else {
+        uploadPreview.style.display = 'none';
+        uploadButton.disabled = true;
+    }
+}
+    
+   // Create a preview item for a file
+function createPreviewItem(file) {
+    const reader = new FileReader();
+    const previewItem = document.createElement('div');
+    previewItem.className = 'preview-item';
+    previewItem.dataset.filename = file.name;
+    
+    // Mostrar indicador visual del tipo de archivo
+    const typeIndicator = document.createElement('div');
+    typeIndicator.className = 'file-type-indicator';
+    
+    reader.onload = function(e) {
+        if (file.type.startsWith('image/')) {
+            // Crear preview para imagen
             const img = document.createElement('img');
             img.src = e.target.result;
+            previewItem.appendChild(img);
             
-            const removeBtn = document.createElement('div');
-            removeBtn.className = 'preview-remove';
-            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-            removeBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                removeFile(file.name);
-                previewItem.remove();
+            // Indicador de tipo imagen
+            typeIndicator.innerHTML = '<i class="fas fa-image"></i>';
+        } 
+        else if (file.type.startsWith('video/')) {
+            // Crear preview para video
+            const video = document.createElement('video');
+            video.controls = true;
+            video.muted = true;
+            video.src = e.target.result;
+            video.className = 'video-preview';
+            
+            // Miniatura estática para el video
+            const videoThumb = document.createElement('div');
+            videoThumb.className = 'video-thumbnail';
+            videoThumb.innerHTML = '<i class="fas fa-play-circle"></i>';
+            
+            // Al hacer clic en la miniatura, mostrar el video
+            videoThumb.addEventListener('click', function() {
+                videoThumb.style.display = 'none';
+                video.style.display = 'block';
+                video.play();
             });
             
-            previewItem.appendChild(img);
-            previewItem.appendChild(removeBtn);
-            previewContainer.appendChild(previewItem);
-        };
+            previewItem.appendChild(videoThumb);
+            previewItem.appendChild(video);
+            
+            // Indicador de tipo video
+            typeIndicator.innerHTML = '<i class="fas fa-video"></i>';
+        }
         
+        // Mostrar tamaño del archivo
+        const fileSize = document.createElement('div');
+        fileSize.className = 'file-size';
+        
+        if (file.size < 1024 * 1024) {
+            fileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+        } else {
+            fileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+        }
+        
+        previewItem.appendChild(fileSize);
+        previewItem.appendChild(typeIndicator);
+        
+        // Botón de eliminar
+        const removeBtn = document.createElement('div');
+        removeBtn.className = 'preview-remove';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            removeFile(file.name);
+            previewItem.remove();
+        });
+        
+        previewItem.appendChild(removeBtn);
+        previewContainer.appendChild(previewItem);
+    };
+    
+    if (file.type.startsWith('image/')) {
+        reader.readAsDataURL(file);
+    } else if (file.type.startsWith('video/')) {
         reader.readAsDataURL(file);
     }
+}
     
     // Remove a file from the selected files array
     function removeFile(filename) {

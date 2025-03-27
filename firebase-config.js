@@ -8,8 +8,6 @@ const firebaseConfig = {
   appId: "1:64636102051:web:0fb6016c8d50309b4a2616"
 };
   
-  console.log('Antes de inicializar Firebase');
-
   // Inicializar Firebase
   firebase.initializeApp(firebaseConfig);
   
@@ -19,8 +17,4 @@ const firebaseConfig = {
   // Referencia a la carpeta donde se guardarán las fotos
   const storageRef = storage.ref('xv-caro-fotos');
   
-  console.log('Firebase inicializado correctamente');
-  console.log('Storage disponible:', !!firebase.storage);
-
-  console.log('Bucket de almacenamiento:', firebaseConfig.storageBucket);
 
