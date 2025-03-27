@@ -246,87 +246,88 @@ function setupFileUpload() {
         // Show loading status
         showStatus('Subiendo fotos...', 'loading');
         
-        // Upload to Google Drive con función de callback para limpiar
-        uploadToGoogleDrive(selectedFiles, () => {
+        // Upload to Firebase Storage
+        uploadToFirebaseStorage(selectedFiles, () => {
             // Esta función limpiará el array correctamente
             selectedFiles = [];
         });
     });
 }
 
-// Upload files to Google Drive via Apps Script
-function uploadToGoogleDrive(files) {
-    // URL del Google Apps Script
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDiNg7fR32PWd8Ckh2TJ76ZJwHj3M88SXDCWEb0mNdgOepMoru61SYXFFNF9dH7wU_Xg/exec';
+// Subir archivos a Firebase Storage
+function uploadToFirebaseStorage(files, clearFilesCallback) {
+    if (!files || files.length === 0) {
+        showStatus('No hay archivos para subir', 'error');
+        return;
+    }
     
-    // Preparar los archivos para el envío
-    const filePromises = files.map(file => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                resolve({
-                    filename: file.name,
-                    mimeType: file.type,
-                    data: e.target.result,
-                    bytes: file.size
-                });
-            };
-            
-            reader.onerror = function() {
-                reject(new Error('Error al leer el archivo ' + file.name));
-            };
-            
-            reader.readAsDataURL(file);
-        });
+    let completedUploads = 0;
+    let failedUploads = 0;
+    
+    // Mostrar progreso inicial
+    showStatus(`Subiendo 0/${files.length} fotos...`, 'loading');
+    
+    // Procesar cada archivo
+    files.forEach((file, index) => {
+        // Crear un nombre único para el archivo
+        const timestamp = new Date().getTime();
+        const fileName = `${timestamp}_${file.name}`;
+        
+        // Referencia al archivo en Firebase Storage
+        const fileRef = storageRef.child(fileName);
+        
+        // Subir el archivo
+        const uploadTask = fileRef.put(file);
+        
+        // Monitorear el progreso de la subida
+        uploadTask.on('state_changed', 
+            // Progreso
+            (snapshot) => {
+                const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                showStatus(`Subiendo ${completedUploads}/${files.length} fotos... (${progress}% de la foto actual)`, 'loading');
+            },
+            // Error
+            (error) => {
+                console.error('Error al subir archivo:', error);
+                failedUploads++;
+                checkAllUploadsComplete();
+            },
+            // Completado
+            () => {
+                completedUploads++;
+                checkAllUploadsComplete();
+            }
+        );
     });
     
-    // Procesar todos los archivos y enviarlos
-    Promise.all(filePromises)
-        .then(fileDataArray => {
-            // Preparar los datos para enviar al servidor
-            const payload = {
-                files: fileDataArray
-            };
-            
-            // Enviar al servidor de Google Apps Script usando fetch con mode: 'no-cors'
-            return fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                mode: 'no-cors' // Importante para evitar errores CORS
-            })
-            .then(() => {
-                // Con mode:'no-cors' no podemos leer la respuesta, así que asumimos éxito
-                showStatus('¡Fotos subidas con éxito!', 'success');
+    // Función para verificar si todas las subidas están completas
+    function checkAllUploadsComplete() {
+        if (completedUploads + failedUploads === files.length) {
+            if (failedUploads === 0) {
+                showStatus(`¡${completedUploads} foto(s) subidas con éxito!`, 'success');
                 
-                // Limpiar selección
-                const previewContainer = document.getElementById('preview-container');
-                const uploadPreview = document.getElementById('upload-preview');
-                const uploadButton = document.getElementById('upload-button');
-                const fileInput = document.getElementById('file-input');
+                // Limpiar la previsualización
+                clearPreview();
                 
-                // Reset all elements
-                previewContainer.innerHTML = '';
-                uploadPreview.style.display = 'none';
-                fileInput.value = '';
-                
-                // Re-enable upload button
-                uploadButton.disabled = false;
-                
-                // Llamar al callback para limpiar el array original
+                // Llamar al callback para limpiar el array
                 if (clearFilesCallback) clearFilesCallback();
-                
-                return { success: true };
-            });
-        })
-        .catch(error => {
-            console.error('Error al subir fotos:', error);
-            showStatus('Error: ' + error.message, 'error');
+            } else {
+                showStatus(`Subidas ${completedUploads} foto(s), fallaron ${failedUploads}`, 'error');
+            }
             
-            // Re-enable upload button in case of error
+            // Reactivar el botón de subida
             document.getElementById('upload-button').disabled = false;
-        });
+        }
+    }
+    
+    // Función para limpiar la previsualización
+    function clearPreview() {
+        const previewContainer = document.getElementById('preview-container');
+        const uploadPreview = document.getElementById('upload-preview');
+        const fileInput = document.getElementById('file-input');
+        
+        previewContainer.innerHTML = '';
+        uploadPreview.style.display = 'none';
+        fileInput.value = '';
+    }
 }
