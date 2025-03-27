@@ -273,31 +273,51 @@ function uploadToFirebaseStorage(files, clearFilesCallback) {
         const timestamp = new Date().getTime();
         const fileName = `${timestamp}_${file.name}`;
         
-        // Referencia al archivo en Firebase Storage
-        const fileRef = storageRef.child(fileName);
+        // Convertir el archivo a un Blob para la subida
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fileBlob = new Blob([e.target.result], { type: file.type });
+            
+            // Crear metadata para el archivo
+            const metadata = {
+                contentType: file.type
+            };
+            
+            // Referencia al archivo en Firebase Storage
+            const fileRef = storageRef.child(fileName);
+            
+            // Subir el archivo con metadata
+            const uploadTask = fileRef.put(fileBlob, metadata);
+            
+            // Monitorear el progreso de la subida
+            uploadTask.on('state_changed', 
+                // Progreso
+                (snapshot) => {
+                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    showStatus(`Subiendo ${completedUploads}/${files.length} fotos... (${progress}% de la foto actual)`, 'loading');
+                },
+                // Error
+                (error) => {
+                    console.error('Error al subir archivo:', error);
+                    failedUploads++;
+                    checkAllUploadsComplete();
+                },
+                // Completado
+                () => {
+                    completedUploads++;
+                    checkAllUploadsComplete();
+                }
+            );
+        };
         
-        // Subir el archivo
-        const uploadTask = fileRef.put(file);
+        reader.onerror = function() {
+            console.error("Error al leer el archivo:", file.name);
+            failedUploads++;
+            checkAllUploadsComplete();
+        };
         
-        // Monitorear el progreso de la subida
-        uploadTask.on('state_changed', 
-            // Progreso
-            (snapshot) => {
-                const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                showStatus(`Subiendo ${completedUploads}/${files.length} fotos... (${progress}% de la foto actual)`, 'loading');
-            },
-            // Error
-            (error) => {
-                console.error('Error al subir archivo:', error);
-                failedUploads++;
-                checkAllUploadsComplete();
-            },
-            // Completado
-            () => {
-                completedUploads++;
-                checkAllUploadsComplete();
-            }
-        );
+        // Leer el archivo como ArrayBuffer
+        reader.readAsArrayBuffer(file);
     });
     
     // Función para verificar si todas las subidas están completas
